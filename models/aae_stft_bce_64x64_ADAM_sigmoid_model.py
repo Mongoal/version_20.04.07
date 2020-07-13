@@ -13,7 +13,7 @@ class AAEConv2dModel(BaseModel):
     def build_model(self):
         # 默认参数
         FILTER_SIZE = (5, 5)
-        Z_DIM = 100
+        Z_DIM = self.config.zdim
         self.Z_DIM = Z_DIM
         STRIDE = (2, 2)
         DEPTHS = [64, 128, 256, 256, 128, 32]
