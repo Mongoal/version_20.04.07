@@ -1,0 +1,6 @@
+/.idea/
+/experiments/
+/dataset_fc.h5
+/ZTE/
+/figures/
+*.pyc

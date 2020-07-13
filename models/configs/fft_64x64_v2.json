@@ -1,0 +1,14 @@
+{
+  "CUDA_VISIBLE_DEVICES": "4,5",
+  "exp_name": "fft_64x64_v2",
+  "info":"net 64x64 stft 128*128.resize bce",
+  "h5data_path": "../utils/dataset_fc.h5",
+  "h5_shuffle_seed": 666,
+  "h5_data_key":"features",
+  "h5_label_key":"labels",
+  "num_epochs": 200,
+  "learning_rate": 0.001,
+  "batch_size": 64,
+  "input_shape": [64, 64, 4],
+  "max_to_keep":5
+}

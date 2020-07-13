@@ -1,0 +1,14 @@
+{
+  "CUDA_VISIBLE_DEVICES": "0,1",
+  "exp_name": "aae_64x64_v0",
+  "info":"date:200711 i:64x64 stft(128*128.resize) loss:bce+gan model:aae_stft_bce_64x64_ADAM_sigmoid_model.py main:aae_fft_recon_64x64_bce_Adam.py",
+  "h5_data_path": "../dataset_fc.h5",
+  "h5_shuffle_seed": 666,
+  "h5_data_key":"features",
+  "h5_label_key":"labels",
+  "num_epochs": 500,
+  "learning_rate": 0.001,
+  "batch_size": 64,
+  "input_shape": [64, 64, 4],
+  "max_to_keep":3
+}

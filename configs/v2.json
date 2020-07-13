@@ -1,0 +1,14 @@
+{
+  "CUDA_VISIBLE_DEVICES": "0,1",
+  "exp_name": "v2_sigmoid_cross_entropy",
+  "info":"auto_encoding_1d_regulation_BatchNorm_no_maxpool_BCE",
+  "h5data_path": "../../dataset/LTE_origin_3240_dataset_5c_10s_1202.h5",
+  "h5_shuffle_seed": 666,
+  "h5_data_key":"signals",
+  "h5_label_key":"labels",
+  "num_epochs": 100,
+  "learning_rate": 0.001,
+  "batch_size": 32,
+  "input_shape": [3240, 2],
+  "max_to_keep":5
+}
