@@ -86,8 +86,8 @@ class AAEConv2dModel(BaseModel):
             with tf.control_dependencies(update_ops):
                 self.AE_solver = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.recon_loss, var_list=vars_enc + vars_dec,
                                                                                             global_step=self.global_step_tensor)
-                self.D_solver = tf.train.AdamOptimizer(self.config.learning_rate*2).minimize(self.D_loss, var_list=vars_dis)
-                self.G_solver = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.G_loss, var_list=vars_enc)
+                self.D_solver = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.D_loss, var_list=vars_dis)
+                self.G_solver = tf.train.AdamOptimizer(self.config.learning_rate*2).minimize(self.G_loss, var_list=vars_enc)
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used in saving the checkpoints.
