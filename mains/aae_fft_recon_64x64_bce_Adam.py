@@ -8,7 +8,6 @@ import tensorflow as tf
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 from data_loader.data_generator import DataGenerator
-from models.aae_stft_bce_64x64_ADAM_sigmoid_model import AAEConv2dModel
 from trainers.aae_trainer_2d import MyModelTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
@@ -34,6 +33,11 @@ def main():
     data = DataGenerator(config)
     
     # create an instance of the model you want
+    if config.loss=="hinge":
+        from models.aae_hinge_bce_64x64_ADAM_sigmoid_model import AAEConv2dModel
+    else:
+        from models.aae_stft_bce_64x64_ADAM_sigmoid_model import AAEConv2dModel
+
     model = AAEConv2dModel(config)
     # create tensorboard logger
     logger = Logger(sess, config)
