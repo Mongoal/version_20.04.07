@@ -20,36 +20,34 @@ class AAEConv2dModel(BaseModel):
         CHANNELS = 4
 
         def encoder(input, z_dim=100, is_training=False):
-            with tf.contrib.slim.arg_scope([tf.layers.batch_normalization],momentum=0.997):
 
-                net = conv2d_BN(input, DEPTHS[0], FILTER_SIZE, is_training, stride=STRIDE, name='conv_1',
-                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                net = conv2d_BN(net, DEPTHS[1], FILTER_SIZE, is_training, stride=STRIDE, name='conv_2',
-                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                net = conv2d_BN(net, DEPTHS[2], FILTER_SIZE, is_training, stride=STRIDE, name='conv_3',
-                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                h = tf.layers.dense(tf.layers.flatten(net), 1024, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                h = tf.nn.relu(tf.layers.batch_normalization(h, training=is_training), name='enc')
-                z = tf.layers.dense(h, z_dim,  kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                z = tf.nn.relu(tf.layers.batch_normalization(z, training=is_training), name='z')
+            net = conv2d_BN(input, DEPTHS[0], FILTER_SIZE, is_training, stride=STRIDE, name='conv_1',
+                            kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            net = conv2d_BN(net, DEPTHS[1], FILTER_SIZE, is_training, stride=STRIDE, name='conv_2',
+                            kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            net = conv2d_BN(net, DEPTHS[2], FILTER_SIZE, is_training, stride=STRIDE, name='conv_3',
+                            kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            h = tf.layers.dense(tf.layers.flatten(net), 1024, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            h = tf.nn.relu(batch_norm(h, training=is_training), name='enc')
+            z = tf.layers.dense(h, z_dim,  kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            z = tf.nn.relu(batch_norm(z, training=is_training), name='z')
             return z
 
         def decoder(z, is_training=False ):
-            with tf.contrib.slim.arg_scope([tf.layers.batch_normalization],momentum=0.997):
 
-                fully_conn = tf.layers.dense(z, 8 * 8 * 256,
-                                             kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                fully_conn_bn = tf.nn.relu(tf.layers.batch_normalization(fully_conn, training=is_training))
-                net = tf.reshape(fully_conn_bn, (tf.shape(z)[0], 8, 8, 256))
-                net = conv2d_BN_transpose(net, DEPTHS[3], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
-                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                net = conv2d_BN_transpose(net, DEPTHS[4], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
-                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                net = conv2d_BN_transpose(net, DEPTHS[5], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_2',
-                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                net = tf.layers.conv2d(net, CHANNELS, FILTER_SIZE, padding='same',
-                                       kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-                net = tf.identity(net, name="recon_unact")
+            fully_conn = tf.layers.dense(z, 8 * 8 * 256,
+                                         kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            fully_conn_bn = tf.nn.relu(batch_norm(fully_conn, training=is_training))
+            net = tf.reshape(fully_conn_bn, (tf.shape(z)[0], 8, 8, 256))
+            net = conv2d_BN_transpose(net, DEPTHS[3], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
+                                      kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            net = conv2d_BN_transpose(net, DEPTHS[4], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
+                                      kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            net = conv2d_BN_transpose(net, DEPTHS[5], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_2',
+                                      kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            net = tf.layers.conv2d(net, CHANNELS, FILTER_SIZE, padding='same',
+                                   kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            net = tf.identity(net, name="recon_unact")
             return net
 
         def discriminator(z):

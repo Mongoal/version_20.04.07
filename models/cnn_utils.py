@@ -16,7 +16,7 @@ def conv2d_BN_transpose(input, depth, filter_size, is_training,
     '''
     net = tf.layers.conv2d_transpose(input, depth, filter_size,
                            padding=padding, strides=stride, kernel_initializer=kernel_initializer)
-    net = tf.layers.batch_normalization(net, training=is_training)
+    net = batch_norm(net, training=is_training)
     if activation.upper() == 'RELU':
         net = tf.nn.relu(net, name=name)
     elif activation.upper() == 'TANH':
@@ -43,7 +43,7 @@ def conv2d_BN(input, depth, filter_size, is_training,
     '''
     net = tf.layers.conv2d(input, depth, filter_size,
                            padding=padding, strides=stride, kernel_initializer=kernel_initializer)
-    net = tf.layers.batch_normalization(net, training=is_training)
+    net = batch_norm(net, training=is_training)
     if activation.upper() == 'RELU':
         net = tf.nn.relu(net, name=name)
     elif activation.upper() == 'TANH':
@@ -55,7 +55,6 @@ def conv2d_BN(input, depth, filter_size, is_training,
     print(net.shape)
     return net
 
-def batch_norm(x,epsilon=1e-5, momentum=0.9,training=True, name="batch_norm"):
+def batch_norm(x,epsilon=1e-5, momentum=0.997,training=True, name="batch_norm"):
     with tf.variable_scope(name):
-        return tf.contrib.layers.batch_norm(x, decay=momentum, updates_collections=None, epsilon=epsilon,
-                                         scale=True, is_training=training,scope=name)
+        return tf.layers.batch_normalization(x, momentum=momentum, epsilon=epsilon, training=training)
