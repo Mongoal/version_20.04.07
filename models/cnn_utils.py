@@ -54,3 +54,8 @@ def conv2d_BN(input, depth, filter_size, is_training,
 
     print(net.shape)
     return net
+
+def batch_norm(x,epsilon=1e-5, momentum=0.9,training=True, name="batch_norm"):
+    with tf.variable_scope(name):
+        return tf.contrib.layers.batch_norm(x, decay=momentum, updates_collections=None, epsilon=epsilon,
+                                         scale=True, is_training=training,scope=name)

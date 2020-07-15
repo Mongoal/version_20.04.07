@@ -21,38 +21,41 @@ class AutoEncodingConv2dBNModel(BaseModel):
             :param input: 3D Tensor, shape : [batch, length, 1]
             :return: output of this model
             """
-            end_points = {}
-            net = conv2d_BN(input, DEPTHS[0], FILTER_SIZE, is_training, stride=STRIDE, name='conv_1',
-                            kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            with tf.contrib.slim.arg_scope([tf.layers.batch_normalization],momentum=0.997):
 
-            net = conv2d_BN(net, DEPTHS[1], FILTER_SIZE, is_training, stride=STRIDE, name='conv_2',
-                            kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+                end_points = {}
+                net = conv2d_BN(input, DEPTHS[0], FILTER_SIZE, is_training, stride=STRIDE, name='conv_1',
+                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
 
-            net = conv2d_BN(net, DEPTHS[2], FILTER_SIZE, is_training, stride=STRIDE, name='conv_3',
-                            kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+                net = conv2d_BN(net, DEPTHS[1], FILTER_SIZE, is_training, stride=STRIDE, name='conv_2',
+                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
 
-            flatten = tf.layers.flatten(net)
-            fully_conn = tf.layers.dense(flatten, 2048, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-            fully_conn_bn = tf.nn.relu(tf.layers.batch_normalization(fully_conn, training=is_training), name='code')
+                net = conv2d_BN(net, DEPTHS[2], FILTER_SIZE, is_training, stride=STRIDE, name='conv_3',
+                                kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
 
-            end_points["code"] = fully_conn_bn
+                flatten = tf.layers.flatten(net)
+                fully_conn = tf.layers.dense(flatten, 2048, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+                fully_conn_bn = tf.nn.relu(tf.layers.batch_normalization(fully_conn, training=is_training), name='code')
 
-            fully_conn = tf.layers.dense(flatten, 8 * 8 * 256,
-                                         kernel_initializer=tf.truncated_normal_initializer(stddev=0.1))
-            fully_conn_bn = tf.nn.relu(tf.layers.batch_normalization(fully_conn, training=is_training))
-            net = tf.reshape(fully_conn_bn, (tf.shape(input)[0], 8, 8, 256))
+                end_points["code"] = fully_conn_bn
 
-            net = conv2d_BN_transpose(net, DEPTHS[3], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
-                                      kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-            net = conv2d_BN_transpose(net, DEPTHS[4], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
-                                      kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-            net = conv2d_BN_transpose(net, DEPTHS[5], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_2',
-                                      kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-            net = tf.layers.conv2d(net, input.shape[-1], FILTER_SIZE, padding='same',
-                                   kernel_initializer=tf.truncated_normal_initializer(stddev=0.1))
-            net = tf.identity(net, name="recon_unact")
-            end_points["recon_unact"] = net
+                fully_conn = tf.layers.dense(flatten, 8 * 8 * 256,
+                                             kernel_initializer=tf.truncated_normal_initializer(stddev=0.1))
+                fully_conn_bn = tf.nn.relu(tf.layers.batch_normalization(fully_conn, training=is_training))
+                net = tf.reshape(fully_conn_bn, (tf.shape(input)[0], 8, 8, 256))
+
+                net = conv2d_BN_transpose(net, DEPTHS[3], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
+                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+                net = conv2d_BN_transpose(net, DEPTHS[4], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_1',
+                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+                net = conv2d_BN_transpose(net, DEPTHS[5], FILTER_SIZE, is_training, stride=STRIDE, name='deconv_2',
+                                          kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+                net = tf.layers.conv2d(net, input.shape[-1], FILTER_SIZE, padding='same',
+                                       kernel_initializer=tf.truncated_normal_initializer(stddev=0.1))
+                net = tf.identity(net, name="recon_unact")
+                end_points["recon_unact"] = net
             return net, end_points
+
 
         self.is_training = tf.placeholder(tf.bool,name="is_training")
         self.x = tf.placeholder(tf.float32, shape=[None] + self.config.input_shape,name="input")
