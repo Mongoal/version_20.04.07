@@ -7,10 +7,12 @@ from utils.prepare_v02 import signal_regulation, myfft1_norm
 class MyModelTrainer(BaseTrain):
     def __init__(self, sess, model, data, config, logger):
         super(MyModelTrainer, self).__init__(sess, model, data, config, logger)
+        self.min_loss_eval = 100
 
     def train_epoch(self):
         loop = tqdm(range(self.data.get_epoch_size(self.config.batch_size)))
         losses = []
+        losses_eval = []
         # accs = []
         log_it = 0
         for _ in loop:
@@ -44,10 +46,12 @@ class MyModelTrainer(BaseTrain):
                     'diff': input - decode
                     # 'acc': acc,
                 }
+                losses_eval.append(recon_loss_curr)
                 self.logger.summarize(cur_it, summaries_dict=summaries_dict)
 
             # accs.append(acc)
         loss = np.mean(losses)
+        loss_eval = np.mean(losses_eval)
         print(loss)
         summaries_dict = {
             'recon_loss_curr_epoch': loss,
@@ -55,8 +59,9 @@ class MyModelTrainer(BaseTrain):
         }
         self.logger.summarize(cur_it, summaries_dict=summaries_dict)
         # acc = np.mean(accs)
-
-        self.model.save(self.sess)
+        if loss_eval< self.min_loss_eval:
+            self.model.save(self.sess)
+            self.min_loss_eval = loss_eval
 
     def train_step(self):
         batch_x, batch_y = next(self.data.get_batch_generator(self.config.batch_size))
