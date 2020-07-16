@@ -52,10 +52,6 @@ class H5DataReader(object):
     def __str__(self):
         return str(self._file)
 
-    def __del__(self):
-        if self._file is not None:
-            self._file.close()
-            self._file = None
 
     def get_condition_idx(self, condition_keys: list = ['labels', 'fc'],
                           include_conditions: list = [(0, 225), (1, 225), (2, 380)],
