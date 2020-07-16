@@ -71,7 +71,7 @@ class H5DataReader(object):
             included = [e in include_conditions for e in combines]
         # 在白名单里除去黑名单
         if exclude_conditions is not None:
-            not_excluded = [not e in exclude_conditions for e in combines]
+            not_excluded = [not(e in exclude_conditions) for e in combines]
             included = np.logical_and(included, not_excluded)
         idx = np.where(included)[0]
         if shuffle:
