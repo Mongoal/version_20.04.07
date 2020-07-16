@@ -47,15 +47,17 @@ class H5DataReader(object):
             np.savetxt('test_idx.txt', self.test_indices, '%d', '\n')
 
         elif seg_set_method == 'txt':
-            pass
+            self.shuffle_indices = np.random.permutation(np.loadtxt(txt_path, dtype=np.int32, delimiter='\n'))
+            self.train_indices = self.shuffle_indices[:int(self.length * train_set_ratio)]
+            self.test_indices = self.shuffle_indices[int(self.length * train_set_ratio):]
 
     def __str__(self):
         return str(self._file)
 
 
     def get_condition_idx(self, condition_keys: list = ['labels', 'fc'],
-                          include_conditions: list = [(0, 225), (1, 225), (2, 380)],
-                          exclude_conditions: list = [(1, 225)], outfile: str = None, shuffle=False, seg_ratio=None):
+                          include_conditions: list = None,
+                          exclude_conditions: list = None, outfile: str = None, shuffle=False, seg_ratio=None):
         if condition_keys is None or condition_keys == []:
             return []
         # for i in zip(*[[1,2],[3,4]]):
