@@ -230,6 +230,49 @@ def make_dataset_cut_origin_signal(directory, pattern='**/*.dat', outpath='LTE_o
 
     h5f.close()
 
+def get_h5_condition_idx(h5filepath, condition_keys: list = ['labels', 'fc'],
+                      include_conditions: list = [(0, 225), (1, 225), (2, 380)],
+                      exclude_conditions: list = [(1, 225)], outfile: str = None, shuffle=False, seg_ratio=None):
+    if condition_keys is None or condition_keys == []:
+        return []
+    # for i in zip(*[[1,2],[3,4]]):
+    #     print(i)
+    # out:
+    # (1, 3)
+    # (2, 4)
+    h5f = h5py.File(h5filepath,'r')
+    length = h5f[condition_keys[0]].shape[0]
+    included = np.ones(length, dtype=np.bool)
+    # 如果没有指定include条件（白名单），默认整个数据集
+    if include_conditions is not None:
+        # 如果有include条件，只留下白名单的编号
+        combines = zip(*[h5f[key][:] for key in condition_keys])
+        included = np.asarray([e in include_conditions for e in combines])
+    # 在白名单里除去黑名单
+    if exclude_conditions is not None:
+        combines = zip(*[h5f[key][:] for key in condition_keys])
+        not_excluded = np.asarray([e not in exclude_conditions for e in combines])
+        included = np.logical_and(included, not_excluded)
+    idx = np.where(included)[0]
+    if shuffle:
+        idx = np.random.permutation(idx)
+    if seg_ratio is not None:
+        idx = np.random.permutation(idx)
+        num = int(seg_ratio * length)
+        idx = (idx[:num], idx[num:])
+        if outfile is not None:
+            np.savetxt('train_' + outfile, idx[0], fmt='%d', delimiter='\n',
+                       header="condition key: %s, include: %s, exclude: %s" % (
+                       condition_keys, include_conditions, exclude_conditions))
+            np.savetxt('test_' + outfile, idx[1], fmt='%d', delimiter='\n',
+                       header="condition key: %s, include: %s, exclude: %s" % (
+                       condition_keys, include_conditions, exclude_conditions))
+    else:
+        if outfile is not None:
+            np.savetxt(outfile, idx, fmt='%d', delimiter='\n',
+                       header="condition key: %s, include: %s, exclude: %s" % (
+                       condition_keys, include_conditions, exclude_conditions))
+    return idx
 
 def make_dataset_stft(directory, pattern='**/*.dat', outpath='LTE_dataset_5c_1202.h5'):
     '''
