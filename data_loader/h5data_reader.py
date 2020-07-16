@@ -63,15 +63,17 @@ class H5DataReader(object):
         # out:
         # (1, 3)
         # (2, 4)
-        combines = zip(*[self._file[key][:] for key in condition_keys])
+
         included = np.ones(self.length, dtype=np.bool)
         # 如果没有指定include条件（白名单），默认整个数据集
         if include_conditions is not None:
             # 如果有include条件，只留下白名单的编号
+            combines = zip(*[self._file[key][:] for key in condition_keys])
             included = np.asarray([e in include_conditions for e in combines])
         # 在白名单里除去黑名单
         if exclude_conditions is not None:
-            not_excluded = np.asarray([not(e in exclude_conditions) for e in combines])
+            combines = zip(*[self._file[key][:] for key in condition_keys])
+            not_excluded = np.asarray([e not in exclude_conditions for e in combines])
             included = np.logical_and(included, not_excluded)
         idx = np.where(included)[0]
         if shuffle:
