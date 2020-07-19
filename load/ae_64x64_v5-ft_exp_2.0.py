@@ -49,7 +49,6 @@ with tf.Graph().as_default():
         ckpt = tf.train.get_checkpoint_state(model_path).model_checkpoint_path
         # files = os.listdir(model_path)
         meta_file = ckpt+'.meta'
-        new_saver = tf.train.Saver(max_to_keep=1)
         import_saver =tf.train.import_meta_graph(meta_file)
 
 
@@ -77,6 +76,7 @@ with tf.Graph().as_default():
         train_varlist = tf.trainable_variables("Finetune")
         train_op = tf.train.AdamOptimizer(init_lr).minimize(loss,var_list=train_varlist,global_step=finetune_step)
         #began training
+        new_saver = tf.train.Saver(max_to_keep=1)
         sess.run(tf.global_variables_initializer())
         import_saver.restore(sess, ckpt)
 
