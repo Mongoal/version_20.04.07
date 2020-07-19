@@ -159,7 +159,7 @@ class H5DataReader(object):
         indices = self.shuffle_indices[self.current_id:self.current_id + batch_size]
         data_list = [self._data[idx] for idx in indices]
         labels_list = [self._labels[idx] for idx in indices]
-        if (self.current_id + batch_size >= self.length):
+        if (self.current_id + batch_size >= len(self.shuffle_indices)):
             self.current_id = 0
             self.shuffle_indices = np.random.permutation(self.shuffle_indices)
         else:
