@@ -101,14 +101,14 @@ with tf.Graph().as_default():
             batch_x, batch_y = h5_reader.get_test_batch(batch_size)
             feed_dict = {is_training: False, input: batch_x, labels: batch_y}
             e_prd, e_los, e_acc =sess.run([predict,loss,accuracy],feed_dict)
-            e_los_list.append(los)
-            e_acc_list.append(acc)
+            e_los_list.append(e_los)
+            e_acc_list.append(e_acc)
 
             batch_x, batch_y = unknown_reader.get_shuffle_data(batch_size)
             feed_dict = {is_training: False, input: batch_x, labels: batch_y}
             u_prd, u_los, u_acc =sess.run([predict,loss,accuracy],feed_dict)
-            u_los_list.append(los)
-            u_acc_list.append(acc)
+            u_los_list.append(u_los)
+            u_acc_list.append(u_acc)
 
 
 
