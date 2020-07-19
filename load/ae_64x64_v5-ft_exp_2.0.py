@@ -4,6 +4,8 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+import sys
+sys.path.append('..')
 import os
 from datetime import datetime
 import time
@@ -20,7 +22,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 ############################################
 ############### Exp Configs ################
 ############################################
-os.environ[ "CUDA_VISIBLE_DEVICES"]="2"
+os.environ[ "CUDA_VISIBLE_DEVICES"]="0"
 ## train set:
 ## condition key: ['labels', 'fc'], include: None, exclude: [(6, 225), (7, 225), (8, 225), (8, 300), (8, 380)]
 exper_path = '../experiments/ft-ae_64x64_v5-ft_exp_2.0/'
@@ -48,6 +50,7 @@ with tf.Graph().as_default():
         # files = os.listdir(model_path)
         meta_file = ckpt+'.meta'
         saver = tf.train.import_meta_graph(meta_file)
+        saver._max_to_keep=1
 
         # Get input and output tensors
 
