@@ -59,8 +59,9 @@ class H5DataReader(object):
             self.test_indices = self.shuffle_indices[int(len(self.shuffle_indices) * train_set_ratio):]
         elif seg_set_method == 'array':
             self.shuffle_indices = np.random.permutation(txt)
-            self.train_indices = self.shuffle_indices[:int(len(self.shuffle_indices)* train_set_ratio)]
-            self.test_indices = self.shuffle_indices[int(len(self.shuffle_indices) * train_set_ratio):]
+            if train_set_ratio is not None:
+                self.train_indices = self.shuffle_indices[:int(len(self.shuffle_indices)* train_set_ratio)]
+                self.test_indices = self.shuffle_indices[int(len(self.shuffle_indices) * train_set_ratio):]
 
     def set_condition_idx(self, condition_keys: list = ['labels', 'fc'],
                           include_conditions: list = None,
