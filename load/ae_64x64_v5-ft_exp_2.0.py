@@ -82,7 +82,7 @@ with tf.Graph().as_default():
 
         h5_reader = H5DataReader(stft_path,seg_set_method='txt',txt_path=train_idx_txt)
         unknown_reader = H5DataReader(stft_path)
-        unknown_reader.set_condition_idx(condition_keys=['labels', 'fc'], include_conditions=[(6, 225), (7, 225), (8, 225)],exclude_conditions=None)
+        unknown_reader.set_condition_idx(condition_keys=['labels', 'fc'], include_conditions=[(6, 225), (7, 225)],exclude_conditions=None)
         i = 0
         los_list= []
         acc_list =[]
