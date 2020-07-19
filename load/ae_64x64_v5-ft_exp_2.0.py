@@ -49,8 +49,9 @@ with tf.Graph().as_default():
         ckpt = tf.train.get_checkpoint_state(model_path).model_checkpoint_path
         # files = os.listdir(model_path)
         meta_file = ckpt+'.meta'
-        tf.train.import_meta_graph(meta_file)
-        saver = tf.train.Saver(max_to_keep=1)
+        new_saver = tf.train.Saver(max_to_keep=1)
+        import_saver =tf.train.import_meta_graph(meta_file)
+
 
         # Get input and output tensors
 
@@ -77,7 +78,7 @@ with tf.Graph().as_default():
         train_op = tf.train.AdamOptimizer(init_lr).minimize(loss,var_list=train_varlist,global_step=finetune_step)
         #began training
         sess.run(tf.global_variables_initializer())
-        saver.restore(sess, ckpt)
+        import_saver.restore(sess, ckpt)
 
         h5_reader = H5DataReader(stft_path,seg_set_method='txt',txt_path=train_idx_txt)
         unknown_reader = H5DataReader(stft_path)
@@ -140,4 +141,4 @@ with tf.Graph().as_default():
             if i%2000 == 0:
                 if not os.path.exists(finetune_model_dir):
                     os.mkdir(finetune_model_dir)
-                saver.save(sess, finetune_model_dir,global_step=i)
+                new_saver.save(sess, finetune_model_dir, global_step=i)
