@@ -31,7 +31,7 @@ class Conv2dModel(BaseModel):
 
 
         self.x = tf.placeholder(tf.float32, shape=[None] + self.config.input_shape,name="input")
-        self.y = tf.placeholder(tf.int32, shape=[None,N_CLASS], name="label")
+        self.y = tf.placeholder(tf.int32, shape=[None], name="label")
         self.is_training = tf.placeholder(tf.bool,name="is_training")
         # network architecture
         z = encoder(self.x,z_dim=Z_DIM, is_training=self.is_training)
@@ -45,7 +45,7 @@ class Conv2dModel(BaseModel):
             with tf.control_dependencies(update_ops):
                 self.train_op = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss, global_step=self.global_step_tensor)
             correct_prediction = tf.equal(tf.argmax(pred, 1, output_type=tf.int32), self.y)
-            self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+            self.acc = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
     def init_saver(self):

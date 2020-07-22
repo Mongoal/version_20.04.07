@@ -17,7 +17,7 @@ def main():
     # then process the json configuration file
     try:
         dict={
-            "nclass":9,
+            "nclass":10,
             "CUDA_VISIBLE_DEVICES": "0",
             "exp_name": "softmax_64x64",
             "info": "net 64x64 stft 128*128.resize model:softmax",
@@ -32,8 +32,8 @@ def main():
             "max_to_keep": 5
         }
         config = Bunch(dict)
-        config = process_config(config)
-
+        config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
+        config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:
         print("missing or invalid arguments")
         exit(0)

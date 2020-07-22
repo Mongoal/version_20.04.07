@@ -42,7 +42,7 @@ class MyModelTrainer(BaseTrain):
             self.min_loss_eval = loss_eval
 
     def train_step(self):
-        batch_x, batch_y = next(self.data.get_batch_generator(self.config.batch_size))
+        batch_x, batch_y = next(self.data.get_train_batch_generator(self.config.batch_size))
         feed_dict = {self.model.x: batch_x, self.model.y: batch_y, self.model.is_training: True}
         _, loss,acc = self.sess.run([self.model.train_op, self.model.loss,self.model.acc],
                                      feed_dict=feed_dict)
@@ -51,7 +51,7 @@ class MyModelTrainer(BaseTrain):
 
 
     def eval_step(self):
-        batch_x, batch_y = next(self.data.get_batch_generator(self.config.batch_size))
+        batch_x, batch_y = next(self.data.get_test_batch_generator(self.config.batch_size))
         feed_dict = {self.model.x: batch_x, self.model.y: batch_y, self.model.is_training: False}
         loss,acc = self.sess.run([self.model.loss,self.model.acc],
                                      feed_dict=feed_dict)

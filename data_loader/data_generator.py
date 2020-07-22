@@ -100,7 +100,7 @@ class DataGenerator:
         '''
         while True:
             buffer_x, buffer_y = self.h5_reader.get_train_batch(batch_size * BUFFER_SIZE)
-            buffer_length = batch_size * BUFFER_SIZE
+            buffer_length = len(buffer_x)
             i = 0
             while(i < buffer_length):
                 start = i
@@ -118,7 +118,7 @@ class DataGenerator:
         '''
         while True:
             buffer_x, buffer_y = self.h5_reader.get_test_batch(batch_size * BUFFER_SIZE)
-            buffer_length = batch_size * BUFFER_SIZE
+            buffer_length = len(buffer_x)
             i = 0
             while(i < buffer_length):
                 start = i
