@@ -17,7 +17,24 @@ def main():
     # then process the json configuration file
     try:
         dict={
-            "nclass":10,
+            "nclass": 9,
+            "model": "resnet",
+            "CUDA_VISIBLE_DEVICES": "1",
+            "exp_name": "softmax_64x64",
+            "info": "net 64x64 stft 128*128.resize model:softmax",
+            "h5_data_path": "../dataset_fc.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "features",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "input_shape": [64, 64, 4],
+            "max_to_keep": 5
+        }
+        dict_v0={
+            "nclass":9,
+            "model": "",
             "CUDA_VISIBLE_DEVICES": "0",
             "exp_name": "softmax_64x64",
             "info": "net 64x64 stft 128*128.resize model:softmax",

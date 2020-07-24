@@ -1,6 +1,7 @@
 from base.base_model import BaseModel
 import tensorflow as tf
 from models.cnn_utils import *
+from tensorflow.contrib.slim.python.slim.nets import resnet_v2
 
 
 
@@ -34,9 +35,14 @@ class Conv2dModel(BaseModel):
         self.y = tf.placeholder(tf.int32, shape=[None], name="label")
         self.is_training = tf.placeholder(tf.bool,name="is_training")
         # network architecture
-        z = encoder(self.x,z_dim=Z_DIM, is_training=self.is_training)
-        logits = tf.layers.dense(z,N_CLASS,kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
-        pred = tf.nn.softmax(logits)
+        if self.config.model == "resnet":
+            pred, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training)
+            logits = tf.squeeze(end_points["resnet_v2_50/logits"], axis=[1, 2])
+        else:
+            z = encoder(self.x,z_dim=Z_DIM, is_training=self.is_training)
+            logits = tf.layers.dense(z, N_CLASS, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
+            pred = tf.nn.softmax(logits)
+
         with tf.name_scope("loss"):
             self.loss = tf.reduce_mean(tf.losses.sparse_softmax_cross_entropy(labels=self.y, logits=logits), name='cross_entropy')
 
