@@ -190,7 +190,6 @@ def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
 def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signal_5000_fc.h5'):
     h5f = h5py.File(outpath, 'w')
     docs = os.listdir(directory)
-    features = []
     label = 0
     for  doc in docs:
 
@@ -210,23 +209,13 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signa
             print(fc)
             sig = read_dat(file)
             # 30 *108 = 3240样本长度，
-            samples = energy_detect_N_cut_origin(sig, 1000, 200, 5)[:1500]
+            samples = energy_detect_N_cut_origin(sig, 1000, 300, 5)[:1500]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
-
+           # append_data_to_h5(h5f, np.stack(features), 'features')
+            append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
+            append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int32) * fc, 'fc')
             # 统计代码
             num_samples_a_file = len(samples)
-            for i, sample in enumerate(samples):
-                feat_mat = myfft2(sample)
-                features.append(feat_mat)
-
-                if i % 100 == 99 or i == num_samples_a_file - 1:
-                    # append_data_to_h5(h5f, np.stack(features), 'features')
-                    append_data_to_h5(h5f, np.ones(len(features), dtype=np.int8) * label, 'labels')
-                    append_data_to_h5(h5f, np.ones(len(features), dtype=np.int32) * fc, 'fc')
-                    features.clear()
-
-
-
             print(file, ' | num samples :', num_samples_a_file)
             num_samples_a_class += num_samples_a_file
             n += 1
@@ -615,7 +604,7 @@ def get_train_valid_indices(number_samples, train_percent=0.6, random_seed=666):
     return train_indices, valid_indices
 
 # DATA9_ROOT = '/media/ubuntu/Seagate Expansion Drive/data 9/电台数据'
-DATA9_ROOT = '/media/ubuntu/Seagate Expansion Drive/data 9/电台数据'
+DATA9_ROOT = '/media/ubuntu/9d99a77e-02ce-4e2b-a8a1-243cd4bdef7d/workplace/lwj/电台数据'
 PATH_DICT = {'DATA9_ROOT':DATA9_ROOT}
 for file in os.listdir(DATA9_ROOT):
     path = os.path.abspath(os.path.join(DATA9_ROOT,file))
@@ -627,5 +616,6 @@ if __name__ == '__main__':
     # path = 'E:\\DATA\\Desktop\\LTE.m\\dat\\split'
     # make_dataset_stft(path)
     # make_dataset_fc('../../dataset/dat/s2')
-    make_dataset_fc(DATA9_ROOT)
+    # make_dataset_fc(DATA9_ROOT)
     make_dataset_signal_fc(DATA9_ROOT)
+

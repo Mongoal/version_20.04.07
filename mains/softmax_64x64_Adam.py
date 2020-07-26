@@ -48,7 +48,39 @@ def main():
             "input_shape": [64, 64, 4],
             "max_to_keep": 5
         }
-        config = Bunch(dict)
+        dict_v1={
+            "nclass": 9,
+            "model": "resnet",
+            "CUDA_VISIBLE_DEVICES": "3",
+            "exp_name": "resnet_softmax_128",
+            "info": "stft 128*128.resize model:softmax",
+            "h5_data_path": "../dataset_signal_5000_fc.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "input_shape": [128, 128, 4],
+            "max_to_keep": 5
+        }
+        dict_v2={
+            "nclass": 9,
+            "model": "",
+            "CUDA_VISIBLE_DEVICES": "3",
+            "exp_name": "softmax_128",
+            "info": "stft 128*128.resize model:softmax",
+            "h5_data_path": "../dataset_signal_5000_fc.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "input_shape": [128, 128, 4],
+            "max_to_keep": 5
+        }
+        config = Bunch(dict_v2)
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:
