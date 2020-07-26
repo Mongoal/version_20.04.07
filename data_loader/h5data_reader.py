@@ -25,10 +25,15 @@ class H5DataReader(object):
         :param txt_path: TODO 划分训练集的方法=‘txt’ 时，需指定训练集txt文件
         '''
         self._file = h5py.File(file, mode)
+
         self.data_key = data_key
         self.label_key = label_key
         self._data = self._file[data_key]
         self._labels = self._file[label_key]
+        # 如果文件小于1个G则全部读入内存
+        if os.path.getsize(file)< 1*1024*1024*1024:
+            self._data = self._data[:]
+            self._labels = self._labels[:]
         self.length = self._labels.shape[0]
         self.seed = seed
         self.current_id = 0
