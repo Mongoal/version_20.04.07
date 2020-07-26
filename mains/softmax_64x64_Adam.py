@@ -20,7 +20,7 @@ def main():
             "nclass": 9,
             "model": "resnet",
             "CUDA_VISIBLE_DEVICES": "1",
-            "exp_name": "softmax_64x64",
+            "exp_name": "resnet_softmax_64x64",
             "info": "net 64x64 stft 128*128.resize model:softmax",
             "h5_data_path": "../dataset_fc.h5",
             "h5_shuffle_seed": 666,

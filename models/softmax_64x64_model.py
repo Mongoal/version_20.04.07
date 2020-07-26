@@ -38,6 +38,7 @@ class Conv2dModel(BaseModel):
         if self.config.model == "resnet":
             pred, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training)
             logits = tf.squeeze(end_points["resnet_v2_50/logits"], axis=[1, 2])
+            pred = tf.nn.softmax(logits)
         else:
             z = encoder(self.x,z_dim=Z_DIM, is_training=self.is_training)
             logits = tf.layers.dense(z, N_CLASS, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
