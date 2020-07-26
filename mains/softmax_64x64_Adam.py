@@ -10,7 +10,8 @@ from utils.dirs import create_dirs
 from utils.logger import Logger
 from utils.utils import get_args
 from bunch import Bunch
-
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def main():
     # capture the config path from the run arguments
@@ -51,7 +52,7 @@ def main():
         dict_v1={
             "nclass": 9,
             "model": "resnet",
-            "CUDA_VISIBLE_DEVICES": "3",
+            "CUDA_VISIBLE_DEVICES": "2",
             "exp_name": "resnet_softmax_128",
             "info": "stft 128*128.resize model:softmax",
             "h5_data_path": "../dataset_signal_5000_fc.h5",
@@ -80,7 +81,7 @@ def main():
             "input_shape": [128, 128, 4],
             "max_to_keep": 5
         }
-        config = Bunch(dict_v2)
+        config = Bunch(dict_v1)
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:
