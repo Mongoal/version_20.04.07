@@ -98,7 +98,7 @@ def energy_detect_N_cut(origin_signal, window_size=100, gate=1e3, num_win_per_sa
     return samples
 
 
-def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e3, num_win_per_sample=30):
+def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win_per_sample=30):
     '''
     能量检测，时域切割
     :param origin_signal: numpy ndarray, shape = [Num, 2]，原始时域信号, I、Q两路
@@ -116,7 +116,7 @@ def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e3, num_win
         head = i * window_size
         tail = i * window_size + window_size
         # 能量块的能量定义为， 能量块内信号幅度平方和的开方根，若gate 为1000 ，则对应平均幅度为sqrt(gate**2 /100) = gate /10 = 100
-        energy[i] = np.linalg.norm(analyze[head:tail])
+        energy[i] = np.linalg.norm(analyze[head:tail])/np.sqrt(window_size)
 
     satisfy_bool_indices = energy > gate
     samples = []
@@ -170,6 +170,57 @@ def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
 
                 if i % 100 == 99 or i == num_samples_a_file - 1:
                     append_data_to_h5(h5f, np.stack(features), 'features')
+                    append_data_to_h5(h5f, np.ones(len(features), dtype=np.int8) * label, 'labels')
+                    append_data_to_h5(h5f, np.ones(len(features), dtype=np.int32) * fc, 'fc')
+                    features.clear()
+
+
+
+            print(file, ' | num samples :', num_samples_a_file)
+            num_samples_a_class += num_samples_a_file
+            n += 1
+            print(file, ' | times :', time.time() - timer, ' s')
+
+        if len(files) > 0 :
+            label += 1
+        print(label, ' name:', doc, ' samples:', num_samples_a_class)
+
+    h5f.close()
+
+def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signal_5000_fc.h5'):
+    h5f = h5py.File(outpath, 'w')
+    docs = os.listdir(directory)
+    features = []
+    label = 0
+    for  doc in docs:
+
+        filepath = directory + '/' + doc
+        files = sorted(glob(filepath + '/' + pattern, recursive=True))
+
+        num_samples_a_class = 0
+        n = 0
+        for file in files:
+            if n >= 10:
+                break
+            # 计时
+            timer = time.time()
+            str_idx=file.find('Fc')
+            fc = int(file[str_idx+2:str_idx+5])
+            print(file)
+            print(fc)
+            sig = read_dat(file)
+            # 30 *108 = 3240样本长度，
+            samples = energy_detect_N_cut_origin(sig, 1000, 200, 5)[:1500]
+            append_data_to_h5(h5f, np.stack(samples), 'signals')
+
+            # 统计代码
+            num_samples_a_file = len(samples)
+            for i, sample in enumerate(samples):
+                feat_mat = myfft2(sample)
+                features.append(feat_mat)
+
+                if i % 100 == 99 or i == num_samples_a_file - 1:
+                    # append_data_to_h5(h5f, np.stack(features), 'features')
                     append_data_to_h5(h5f, np.ones(len(features), dtype=np.int8) * label, 'labels')
                     append_data_to_h5(h5f, np.ones(len(features), dtype=np.int32) * fc, 'fc')
                     features.clear()
@@ -577,3 +628,4 @@ if __name__ == '__main__':
     # make_dataset_stft(path)
     # make_dataset_fc('../../dataset/dat/s2')
     make_dataset_fc(DATA9_ROOT)
+    make_dataset_signal_fc(DATA9_ROOT)
