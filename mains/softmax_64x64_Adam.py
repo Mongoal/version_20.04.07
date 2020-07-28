@@ -81,13 +81,10 @@ def main():
             "input_shape": [128, 128, 4],
             "max_to_keep": 5
         }
-<<<<<<< HEAD
-        config = Bunch(dict_v1)
-=======
         dict_v3={
             "nclass": 9,
-            "model": "",
-            "CUDA_VISIBLE_DEVICES": "3",
+            "model": "resnet",
+            "CUDA_VISIBLE_DEVICES": "2",
             "exp_name": "resnet_softmax_5000_256",
             "info": "5000 stft 256*256 model:softmax",
             "h5_data_path": "../dataset_signal_5000_fc.h5",
@@ -102,7 +99,6 @@ def main():
             "max_to_keep": 5
         }
         config = Bunch(dict_v3)
->>>>>>> e23699576454b5c18c2d8b7203af0b8cca3330aa
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:

@@ -187,7 +187,7 @@ def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
 
     h5f.close()
 
-def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signal_5000_fc.h5'):
+def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signal_10000_fc.h5'):
     h5f = h5py.File(outpath, 'w')
     docs = os.listdir(directory)
     label = 0
@@ -209,7 +209,7 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signa
             print(fc)
             sig = read_dat(file)
             # 30 *108 = 3240样本长度，
-            samples = energy_detect_N_cut_origin(sig, 1000, 300, 5)[:1500]
+            samples = energy_detect_N_cut_origin(sig, 2000, 300, 5)[:2000]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
            # append_data_to_h5(h5f, np.stack(features), 'features')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
