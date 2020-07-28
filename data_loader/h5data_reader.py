@@ -31,7 +31,7 @@ class H5DataReader(object):
         self._data = self._file[data_key]
         self._labels = self._file[label_key]
         # 如果文件小于1个G则全部读入内存
-        if os.path.getsize(file)< 1*1024*1024*1024:
+        if os.path.getsize(file)< 3*1024*1024*1024:
             self._data = self._data[:]
             self._labels = self._labels[:]
         self.length = self._labels.shape[0]

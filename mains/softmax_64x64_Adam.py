@@ -79,7 +79,7 @@ def main():
             "learning_rate": 0.001,
             "batch_size": 64,
             "input_shape": [128, 128, 4],
-            "max_to_keep": 5
+            "max_to_keep": 1
         }
         dict_v3={
             "nclass": 9,
@@ -96,7 +96,24 @@ def main():
             "batch_size": 64,
             "input_shape": [256, 256, 4],
             "stft_args": (128,256,110,False), #(window,nfft,overlap,resize)
-            "max_to_keep": 5
+            "max_to_keep":1
+        }
+        dict_v4={
+            "nclass": 9,
+            "model": "resnet",
+            "CUDA_VISIBLE_DEVICES": "3",
+            "exp_name": "resnet_softmax_10000_256",
+            "info": "10000 stft 256*256 model:softmax",
+            "h5_data_path": "../dataset_signal_10000_fc.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "input_shape": [256, 256, 4],
+            "stft_args": (128,256,90,False), #(window,nfft,overlap,resize)
+            "max_to_keep": 1
         }
         config = Bunch(dict_v3)
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
