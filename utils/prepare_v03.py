@@ -98,7 +98,7 @@ def energy_detect_N_cut(origin_signal, window_size=100, gate=1e3, num_win_per_sa
     return samples
 
 
-def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win_per_sample=30):
+def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win_per_sample=30, drop_abnormal_mean= False):
     '''
     能量检测，时域切割
     :param origin_signal: numpy ndarray, shape = [Num, 2]，原始时域信号, I、Q两路
@@ -112,13 +112,15 @@ def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win
 
     energy_len = int(np.floor(len(analyze) / window_size))
     energy = np.zeros(energy_len)
+    mean = np.zeros(energy_len)
     for i in range(energy_len):
         head = i * window_size
         tail = i * window_size + window_size
         # 能量块的能量定义为， 能量块内信号幅度平方和的开方根，若gate 为1000 ，则对应平均幅度为sqrt(gate**2 /100) = gate /10 = 100
         energy[i] = np.linalg.norm(analyze[head:tail])/np.sqrt(window_size)
+        mean[i] = np.mean(origin_signal[head:tail, 0])
 
-    satisfy_bool_indices = energy > gate
+    satisfy_bool_indices = np.logical_and(energy > gate , mean < 0.5 * gate)
     samples = []
     i = 0
     # 遍历所有能量块
@@ -187,7 +189,7 @@ def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
 
     h5f.close()
 
-def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signal_10000_fc.h5'):
+def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean= False, outpath='dataset_signal_10000_fc.h5'):
     h5f = h5py.File(outpath, 'w')
     docs = os.listdir(directory)
     label = 0
@@ -209,7 +211,7 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', outpath='dataset_signa
             print(fc)
             sig = read_dat(file)
             # 30 *108 = 3240样本长度，
-            samples = energy_detect_N_cut_origin(sig, 2000, 300, 5)[:2000]
+            samples = energy_detect_N_cut_origin(sig, 500, 300, 10, drop_abnormal_mean)[:2000]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
            # append_data_to_h5(h5f, np.stack(features), 'features')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
@@ -617,5 +619,5 @@ if __name__ == '__main__':
     # make_dataset_stft(path)
     # make_dataset_fc('../../dataset/dat/s2')
     # make_dataset_fc(DATA9_ROOT)
-    make_dataset_signal_fc(DATA9_ROOT)
+    make_dataset_signal_fc(DATA9_ROOT, drop_abnormal_mean=True, outpath="dataset_signal_5000_new.h5")
 
