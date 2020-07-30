@@ -83,6 +83,25 @@ def main():
             "input_shape": [128, 128, 4],
             "max_to_keep": 5
         }
+
+        dict_v12={
+            "nclass": 9,
+            "model": "resnet_101",
+            "CUDA_VISIBLE_DEVICES": "5",
+            "exp_name": "resnet_softmax_128_v12",
+            "info": "5000 ->stft 128*128  model:resnet softmax",
+            "h5_data_path": "../dataset_signal_5000_new.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "stft_args": (128, 128, 90, False),
+            "input_shape": [128, 128, 4],
+            "max_to_keep": 5
+        }
+
         dict_v2={
             "nclass": 9,
             "model": "",
