@@ -102,6 +102,24 @@ def main():
             "max_to_keep": 5
         }
 
+        dict_v13={
+            "nclass": 9,
+            "model": "resnet",
+            "CUDA_VISIBLE_DEVICES": "7",
+            "exp_name": "resnet_softmax_128_v13",
+            "info": "5000 ->stft 128*128  output_stride=16 bn_decay 0.99 emodel:resnet softmax",
+            "h5_data_path": "../dataset_signal_5000_new.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "stft_args": (128, 128, 90, False),
+            "input_shape": [128, 128, 4],
+            "max_to_keep": 5
+        }
+
         dict_v2={
             "nclass": 9,
             "model": "",
@@ -171,7 +189,24 @@ def main():
             "stft_args": (128,256,90,False), #(window,nfft,overlap,resize)
             "max_to_keep": 1
         }
-        config = Bunch(dict_v21)
+        dict_v41={
+            "nclass": 9,
+            "model": "resnet_101",
+            "CUDA_VISIBLE_DEVICES": "0,1,2,3",
+            "exp_name": "resnet_softmax_10000_256_v41",
+            "info": "10000 stft 256*256 model:softmax",
+            "h5_data_path": "../dataset_signal_10000_fc.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "batch_size": 64,
+            "input_shape": [256, 256, 4],
+            "stft_args": (128,256,90,False), #(window,nfft,overlap,resize)
+            "max_to_keep": 1
+        }
+        config = Bunch(dict_v13)
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:

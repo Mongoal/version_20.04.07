@@ -2,6 +2,7 @@ from base.base_model import BaseModel
 import tensorflow as tf
 from models.cnn_utils import *
 from tensorflow.contrib.slim.python.slim.nets import resnet_v2
+slim = tf.contrib.slim
 
 
 
@@ -36,9 +37,10 @@ class Conv2dModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool,name="is_training")
         # network architecture
         if self.config.model == "resnet":
-            pred, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training)
-            logits = tf.squeeze(end_points["resnet_v2_50/logits"], axis=[1, 2])
-            pred = tf.nn.softmax(logits)
+            with slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=0.99)):
+                net, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training, output_stride=16)
+                logits = tf.squeeze(end_points["resnet_v2_50/logits"], axis=[1, 2])
+            pred = tf.nn.softmax(logits, "pred")
         elif self.config.model == "resnet_101":
             pred, end_points = resnet_v2.resnet_v2_101(self.x, N_CLASS, is_training=self.is_training)
             logits = tf.squeeze(end_points["resnet_v2_101/logits"], axis=[1, 2])
@@ -48,7 +50,9 @@ class Conv2dModel(BaseModel):
             logits = tf.layers.dense(z, N_CLASS, kernel_initializer=tf.truncated_normal_initializer(stddev=0.01))
             pred = tf.nn.softmax(logits)
 
+        self.pred = pred
         with tf.name_scope("loss"):
+
             self.loss = tf.reduce_mean(tf.losses.sparse_softmax_cross_entropy(labels=self.y, logits=logits), name='cross_entropy')
 
             update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
