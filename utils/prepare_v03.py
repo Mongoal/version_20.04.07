@@ -34,6 +34,53 @@ def signal_regulation(cut_origin_signal):
 def signal_regulation_old(cut_origin_signal):
     return cut_origin_signal/np.max(np.abs(cut_origin_signal))
 
+def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5de20cfa3035/yzl/tele9/tele9_part',  pattern='**/*.h5', outpath ="dataset_signal_10000_yzl.h5"):
+    '''
+    yzl目录---201601---xxxFc225xx.mat
+           |        |-xxxFc450xx.mat
+           |-201602---xxx.mat
+     xxx.mat格式 h5. key:sig_valid
+
+    :param directory:yzl mat 根目录，目录下只能有N个文件夹，N为类别数，每个文件夹存放不同类别的dat
+    :param film:
+    :return:
+    '''
+    h5f = h5py.File(outpath, 'w')
+    docs = os.listdir(directory)
+    for label, doc in enumerate(docs):
+
+        filepath = directory + '/' + doc
+        files = sorted(glob(filepath + '/' + pattern, recursive=True))
+
+        num_samples_a_class = 0
+        n = 0
+        for file in files:
+            # 计时
+            timer = time.time()
+
+            # 读取 + reshape
+            sig = h5py.File(file,'r')['sig_valid'][:].reshape((-1,10000))
+            # 拆开实部和虚部，存为int16，再把第一坐标轴移到最后
+            samples = np.asarray([sig[:,:][0],sig[:,:][1]],np.int16).transpose([1,2,0])[:2000]
+            print(samples.shape,samples.dtype)
+            # append_data_to_h5(h5f, doc, 'label_names')
+            append_data_to_h5(h5f, np.stack(samples), 'signals')
+            append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
+            str_idx=file.find('Fc')
+            fc = int(file[str_idx+2:str_idx+5])
+            append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int32) * fc, 'fc')
+
+            # 统计代码
+            num_samples_a_file = len(samples)
+            print(file, ' | num samples :', num_samples_a_file)
+            num_samples_a_class += num_samples_a_file
+            n += 1
+            print(file, ' | times :', time.time() - timer, ' s')
+
+        print(label, ' name:', doc, ' samples:', num_samples_a_class)
+
+    h5f.close()
+
 def myfft1_norm(stft):
     stft[:, :, 0] =    stft[:, :, 0]/2 + 0.5
     stft[:, :, 1] = stft[:, :, 1]/2 + 0.5
