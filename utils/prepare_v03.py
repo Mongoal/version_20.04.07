@@ -58,10 +58,14 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
             # 计时
             timer = time.time()
 
-            # 读取 + reshape
-            sig = h5py.File(file,'r')['sig_valid'][:].reshape((-1,10000))
-            # 拆开实部和虚部，存为int16，再把第一坐标轴移到最后
-            samples = np.asarray([sig[:,:][0],sig[:,:][1]],np.int16).transpose([1,2,0])[:2000]
+            # 读取
+            sig = h5py.File(file,'r')['sig_valid'][:]
+            samples = np.zeros([len(sig), 2], np.int16)
+            for i in range(len(sig)):
+                sig[i,0] = int(sig[i,0][0])
+                sig[i,1] = int(sig[i,0][1])
+
+            samples = samples.reshape([-1,10000,2])
             print(samples.shape,samples.dtype)
             # append_data_to_h5(h5f, doc, 'label_names')
             append_data_to_h5(h5f, np.stack(samples), 'signals')
