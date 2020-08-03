@@ -62,8 +62,8 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
             sig = h5py.File(file,'r')['sig_valid'][:]
             samples = np.zeros([len(sig), 2], np.int16)
             for i in range(len(sig)):
-                sig[i,0] = int(sig[i,0][0])
-                sig[i,1] = int(sig[i,0][1])
+                samples[i,0] = int(sig[i,0][0])
+                samples[i,1] = int(sig[i,0][1])
 
             samples = samples.reshape([-1,10000,2])
             print(samples.shape,samples.dtype)
