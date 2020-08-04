@@ -34,7 +34,7 @@ def signal_regulation(cut_origin_signal):
 def signal_regulation_old(cut_origin_signal):
     return cut_origin_signal/np.max(np.abs(cut_origin_signal))
 
-def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5de20cfa3035/yzl/tele9/tele9_part',  pattern='**/*.h5', outpath ="dataset_signal_10000_yzl.h5"):
+def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5de20cfa3035/yzl/tele9/tele9_part',  pattern='**/*.mat', outpath ="dataset_signal_10000_yzl_mini.h5"):
     '''
     yzl目录---201601---xxxFc225xx.mat
            |        |-xxxFc450xx.mat
@@ -55,13 +55,19 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
         num_samples_a_class = 0
         n = 0
         for file in files:
+
+            str_idx=file.find('Fc')
+            fc = int(file[str_idx+2:str_idx+5])
+
+            if fc<400:
+                break
             # 计时
             timer = time.time()
-
             # 读取
             sig = h5py.File(file,'r')['sig_valid'][:]
-            samples = np.zeros([len(sig), 2], np.int16)
-            for i in range(len(sig)):
+            length = 2000 * 10000
+            samples = np.zeros([length, 2], np.int16)
+            for i in range(length):
                 samples[i,0] = int(sig[i,0][0])
                 samples[i,1] = int(sig[i,0][1])
 
@@ -70,8 +76,6 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
             # append_data_to_h5(h5f, doc, 'label_names')
             append_data_to_h5(h5f, np.stack(samples), 'signals')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
-            str_idx=file.find('Fc')
-            fc = int(file[str_idx+2:str_idx+5])
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int32) * fc, 'fc')
 
             # 统计代码
