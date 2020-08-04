@@ -59,8 +59,8 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
             str_idx=file.find('Fc')
             fc = int(file[str_idx+2:str_idx+5])
 
-            if fc<400:
-                break
+            if fc>400:
+                continue
             # 计时
             timer = time.time()
             # 读取
