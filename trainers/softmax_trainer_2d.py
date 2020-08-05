@@ -16,13 +16,19 @@ class MyModelTrainer(BaseTrain):
         accs = []
         losses_eval = []
         accs_eval=[]
-        for _ in loop:
+        for i in loop:
             loss,acc = self.train_step()
             loss_eval, acc_eval = self.eval_step();
             losses.append(loss)
             accs.append(acc)
             losses_eval.append(loss_eval)
             accs_eval.append(acc_eval)
+            if i % 20 == 0:
+                summaries_dict = {
+                    'eval_acc_batch': acc_eval,
+                }
+                cur_it = self.model.global_step_tensor.eval(self.sess)
+                self.logger.summarize(cur_it, summaries_dict=summaries_dict)
 
         loss = np.mean(losses)
         loss_eval = np.mean(losses_eval)

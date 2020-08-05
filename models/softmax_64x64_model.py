@@ -36,8 +36,10 @@ class Conv2dModel(BaseModel):
         self.y = tf.placeholder(tf.int32, shape=[None], name="label")
         self.is_training = tf.placeholder(tf.bool,name="is_training")
         # network architecture
+        batch_norm_decay = 0.997 if self.config.get('bn_decay')==None else self.config.bn_decay
+        output_stride =  self.config.get('output_stride')
         if self.config.model == "resnet":
-            with slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=0.99)):
+            with slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
                 net, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training, output_stride=16)
                 logits = tf.squeeze(end_points["resnet_v2_50/logits"], axis=[1, 2])
             pred = tf.nn.softmax(logits, "pred")

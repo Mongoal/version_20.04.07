@@ -119,6 +119,26 @@ def main():
             "input_shape": [128, 128, 4],
             "max_to_keep": 5
         }
+        dict_v14={
+            "CUDA_VISIBLE_DEVICES": "7",
+            "exp_name": "resnet_softmax_128_v13",
+            "info": "5000 ->stft 128*128  output_stride=32 bn_decay 0.999 emodel:resnet softmax",
+            "h5_data_path": "../dataset_signal_5000_new.h5",
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "h5_shuffle_seed": 666,
+            "batch_size": 64,
+            "stft_args": (128, 128, 90, False),
+            "model": "resnet",
+            "input_shape": [128, 128, 4],
+            "nclass": 9,
+            "output_stride": 32,
+            "bn_decay": 0.999,
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "max_to_keep": 1
+        }
+
 
         dict_v2={
             "nclass": 9,
@@ -219,7 +239,7 @@ def main():
     sess = tf.Session()
     # create your data generator
     data = DataGenerator(config)
-    
+
     # create an instance of the model you want
     model = Conv2dModel(config)
     # create tensorboard logger
