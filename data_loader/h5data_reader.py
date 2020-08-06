@@ -70,7 +70,7 @@ class H5DataReader(object):
 
     def set_condition_idx(self, condition_keys: list = ['labels', 'fc'],
                           include_conditions: list = None,
-                          exclude_conditions: list = None, outfile: str = None, shuffle=False, seg_ratio=None):
+                          exclude_conditions: list = None, outfile: str = None, shuffle=False, seg_ratio=0.7):
         idx = self.get_condition_idx(condition_keys,include_conditions,exclude_conditions,outfile,shuffle)
         self.set_idx(seg_ratio,seg_set_method='array',txt=idx)
 
