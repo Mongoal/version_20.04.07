@@ -157,6 +157,26 @@ def main():
             "learning_rate": 0.0001,
             "max_to_keep": 1
         }
+        dict_v16={
+            "CUDA_VISIBLE_DEVICES": "1",
+            "exp_name": "resnet_softmax_128_v16",
+            "info": "5000 ->stft 128*128  output_stride=32 bn_decay 0.997 emodel:resnet softmax",
+            "h5_data_path": "../dataset_signal_5000_new.h5",
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "h5_shuffle_seed": 666,
+            "batch_size": 64,
+            "stft_args": (128, 128, 90, False),
+            "model": "resnet_v1_50",
+            "input_shape": [128, 128, 4],
+            "nclass": 9,
+            "output_stride": 32,
+            "bn_decay": 0.997,
+            "num_epochs": 200,
+            "learning_rate": 0.0001,
+            "max_to_keep": 1
+        }
+
 
 
         dict_v2={

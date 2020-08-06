@@ -2,6 +2,7 @@ from base.base_model import BaseModel
 import tensorflow as tf
 from models.cnn_utils import *
 from tensorflow.contrib.slim.python.slim.nets import resnet_v2
+from models import resnet_v1
 slim = tf.contrib.slim
 
 
@@ -40,12 +41,18 @@ class Conv2dModel(BaseModel):
         output_stride =  self.config.get('output_stride')
         if self.config.model == "resnet":
             with slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
-                net, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training, output_stride=16)
+                net, end_points = resnet_v2.resnet_v2_50(self.x, N_CLASS, is_training=self.is_training, output_stride=output_stride)
                 logits = tf.squeeze(end_points["resnet_v2_50/logits"], axis=[1, 2])
             pred = tf.nn.softmax(logits, "pred")
         elif self.config.model == "resnet_101":
-            pred, end_points = resnet_v2.resnet_v2_101(self.x, N_CLASS, is_training=self.is_training)
-            logits = tf.squeeze(end_points["resnet_v2_101/logits"], axis=[1, 2])
+            with slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
+                pred, end_points = resnet_v2.resnet_v2_101(self.x, N_CLASS, is_training=self.is_training, output_stride=output_stride)
+                logits = tf.squeeze(end_points["resnet_v2_101/logits"], axis=[1, 2])
+            pred = tf.nn.softmax(logits)
+        elif self.config.model == "resnet_v1_50":
+            with slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
+                pred, end_points = resnet_v1.resnet_v1_50(self.x, N_CLASS, is_training=self.is_training, output_stride=output_stride)
+                logits = tf.squeeze(end_points["resnet_v1_50/logits"], axis=[1, 2])
             pred = tf.nn.softmax(logits)
         else:
             z = encoder(self.x,z_dim=Z_DIM, is_training=self.is_training)
