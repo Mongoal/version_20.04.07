@@ -560,7 +560,7 @@ def myfft2(signal, nperseg=64, nfft=128, noverlap=44,_resize = True):
 
 def myfft1(signal, nperseg=64, nfft=256, noverlap=52,return_onesided=False):
     _, _, z = Sig.stft(signal, nperseg=nperseg, nfft=nfft, noverlap=noverlap, return_onesided=return_onesided)
-    z = np.fft.fftshift(z, 0)
+    z = np.fft.fftshift(z, 0)[:,:nfft]
     z = z / np.max(abs(z))
     feature = np.zeros((z.shape[0], z.shape[1], 4), np.float32)
     feature[:, :, 0] = z.real
