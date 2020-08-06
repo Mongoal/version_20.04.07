@@ -1,14 +1,19 @@
 from base.base_train import BaseTrain
 from tqdm import tqdm
 import numpy as np
-from utils.prepare_v03 import signal_regulation,myfft2
+from utils.prepare_v03 import signal_regulation,myfft2,myfft1
+
 
 
 class MyModelTrainer(BaseTrain):
     def __init__(self, sess, model, data, config,logger):
         super(MyModelTrainer, self).__init__(sess, model, data, config,logger)
         self.min_loss_eval = 100
-
+        if config.get('stft_method') == 'myfft1':
+            self.myfft = myfft1
+            print("use myfft1")
+        else:
+            self.myfft = myfft2
 
     def train_epoch(self):
         loop = tqdm(range(self.data.get_epoch_size(self.config.batch_size)))
@@ -51,7 +56,7 @@ class MyModelTrainer(BaseTrain):
         batch_x, batch_y = next(self.data.get_train_batch_generator(self.config.batch_size))
         if self.config.h5_data_key=="signals":
             batch_x = [origin_signal[:, 0] + np.asarray(1j, np.complex64) * origin_signal[:, 1] for origin_signal in batch_x]
-            batch_x =[ myfft2(x -np.mean(x),*self.config.stft_args) for x in batch_x]
+            batch_x =[ self.myfft(x -np.mean(x),*self.config.stft_args) for x in batch_x]
 
         feed_dict = {self.model.x: batch_x, self.model.y: batch_y, self.model.is_training: True}
         _, loss,acc = self.sess.run([self.model.train_op, self.model.loss,self.model.acc],
@@ -64,7 +69,7 @@ class MyModelTrainer(BaseTrain):
         batch_x, batch_y = next(self.data.get_test_batch_generator(self.config.batch_size))
         if self.config.h5_data_key=="signals":
             batch_x = [origin_signal[:, 0] + np.asarray(1j, np.complex64) * origin_signal[:, 1] for origin_signal in batch_x]
-            batch_x =[ myfft2(x -np.mean(x),*self.config.stft_args) for x in batch_x]
+            batch_x =[ self.myfft(x -np.mean(x),*self.config.stft_args) for x in batch_x]
 
         feed_dict = {self.model.x: batch_x, self.model.y: batch_y, self.model.is_training: False}
         loss,acc = self.sess.run([self.model.loss,self.model.acc],

@@ -284,6 +284,16 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean= Fa
 
     h5f.close()
 
+def make_exp_set(outpath='dataset_test.h5'):
+    h5f = h5py.File(outpath, 'w')
+    a=0
+    for  label in range(9):
+        samples = np.arange(a,a+1000)
+        a=a+1000
+        append_data_to_h5(h5f, np.stack(samples), 'signals')
+       # append_data_to_h5(h5f, np.stack(features), 'features')
+        append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
+    h5f.close()
 
 def make_dataset_cut_origin_signal(directory, pattern='**/*.dat', outpath='LTE_origin_3240_dataset_5c_10s_1202.h5'):
     '''
@@ -548,8 +558,8 @@ def myfft2(signal, nperseg=64, nfft=128, noverlap=44,_resize = True):
         out = feature
     return out
 
-def myfft1(signal, nperseg=64, nfft=256, noverlap=52):
-    _, _, z = Sig.stft(signal, nperseg=64, nfft=256, noverlap=52, return_onesided=False)
+def myfft1(signal, nperseg=64, nfft=256, noverlap=52,return_onesided=False):
+    _, _, z = Sig.stft(signal, nperseg=64, nfft=256, noverlap=52, return_onesided=return_onesided)
     z = np.fft.fftshift(z, 0)
     z = z / np.max(abs(z))
     feature = np.zeros((z.shape[0], z.shape[1], 4), np.float32)
@@ -662,11 +672,11 @@ def get_train_valid_indices(number_samples, train_percent=0.6, random_seed=666):
 
 # DATA9_ROOT = '/media/ubuntu/Seagate Expansion Drive/data 9/电台数据'
 DATA9_ROOT = '/media/ubuntu/9d99a77e-02ce-4e2b-a8a1-243cd4bdef7d/workplace/lwj/电台数据'
-PATH_DICT = {'DATA9_ROOT':DATA9_ROOT}
-for file in os.listdir(DATA9_ROOT):
-    path = os.path.abspath(os.path.join(DATA9_ROOT,file))
-    if os.path.isdir(path):
-        PATH_DICT[file] = path
+# PATH_DICT = {'DATA9_ROOT':DATA9_ROOT}
+# for file in os.listdir(DATA9_ROOT):
+#     path = os.path.abspath(os.path.join(DATA9_ROOT,file))
+#     if os.path.isdir(path):
+#         PATH_DICT[file] = path
 
 
 if __name__ == '__main__':
