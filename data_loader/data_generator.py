@@ -10,6 +10,8 @@ class DataGenerator:
         self.config = config
         # load data here
         self.h5_reader = H5DataReader(config.h5_data_path, mode='r', data_key=config.h5_data_key, label_key=config.h5_label_key, seed=config.h5_shuffle_seed)
+        if config.get("h5_condition_args"):
+            self.h5_reader.set_condition_idx(*config.h5_condition_args)
         self.train_batch_generator = None
         self.test_batch_generator = None
         self.batch_generator = None

@@ -177,6 +177,27 @@ def main():
             "max_to_keep": 1
         }
 
+        dict_v6={
+            "CUDA_VISIBLE_DEVICES": "1",
+            "exp_name": "resnet_softmax_128_v16",
+            "info": "5000 ->stft 128*128  output_stride=32 bn_decay 0.997 emodel:resnet softmax",
+            "h5_data_path": "../dataset_signal_5000_new.h5",
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "h5_condition_args": (["fc"],[225],None),
+            "h5_shuffle_seed": 666,
+            "batch_size": 64,
+            "stft_args": (128, 128, 90, False),
+            "model": "resnet_v1_50",
+            "input_shape": [128, 128, 4],
+            "nclass": 9,
+            "output_stride": 32,
+            "bn_decay": 0.997,
+            "num_epochs": 200,
+            "learning_rate": 0.001,
+            "max_to_keep": 1
+        }
+
 
 
         dict_v2={
@@ -265,7 +286,7 @@ def main():
             "stft_args": (128,256,90,False), #(window,nfft,overlap,resize)
             "max_to_keep": 1
         }
-        config = Bunch(dict_v13)
+        config = Bunch(dict_v6)
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:
