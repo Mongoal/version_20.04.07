@@ -83,6 +83,23 @@ def main():
             "input_shape": [128, 128, 4],
             "max_to_keep": 5
         }
+        dict_v11_a={
+            "nclass": 9,
+            "model": "resnet",
+            "CUDA_VISIBLE_DEVICES": "1",
+            "exp_name": "resnet_softmax_128_v11_a",
+            "info": "resnet_softmax_128_v11改版a，更改学习率，信号去均值",
+            "h5_data_path": "../dataset_signal_5000_new.h5",
+            "h5_shuffle_seed": 666,
+            "h5_data_key": "signals",
+            "h5_label_key": "labels",
+            "num_epochs": 200,
+            "learning_rate": 0.003,
+            "batch_size": 64,
+            "stft_args": (128, 128, 90, False),
+            "input_shape": [128, 128, 4],
+            "max_to_keep": 1
+        }
 
         dict_v12={
             "nclass": 9,
@@ -141,7 +158,7 @@ def main():
         dict_v15={
             "CUDA_VISIBLE_DEVICES": "1",
             "exp_name": "resnet_softmax_128_v15",
-            "info": "5000 ->stft 128*128  output_stride=32 bn_decay 0.997 emodel:resnet softmax",
+            "info": "lr 0.0001 5000 ->stft 128*128  output_stride=32 bn_decay 0.997 emodel:resnet softmax",
             "h5_data_path": "../dataset_signal_5000_new.h5",
             "h5_data_key": "signals",
             "h5_label_key": "labels",
