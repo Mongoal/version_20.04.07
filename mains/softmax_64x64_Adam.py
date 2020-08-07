@@ -323,7 +323,7 @@ def main():
             "stft_args": (128,256,90,False), #(window,nfft,overlap,resize)
             "max_to_keep": 1
         }
-        config = Bunch(dict_v6)
+        config = Bunch(dict_v11_a)
         config.summary_dir = os.path.join("../experiments", config.exp_name, "summary/")
         config.checkpoint_dir = os.path.join("../experiments", config.exp_name, "checkpoint/")
     except:
