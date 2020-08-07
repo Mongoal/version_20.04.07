@@ -20,6 +20,8 @@ import struct
 import h5py
 import time
 from skimage.transform import resize
+
+
 def read_dat(path):
     '''
     读取二进制_int16_2Channels的数据
@@ -29,12 +31,17 @@ def read_dat(path):
     signal = np.fromfile(path, dtype=np.int16).reshape((-1, 2))
     return signal
 
-def signal_regulation(cut_origin_signal):
-    return cut_origin_signal/np.max(np.abs(cut_origin_signal))/2 + 0.5
-def signal_regulation_old(cut_origin_signal):
-    return cut_origin_signal/np.max(np.abs(cut_origin_signal))
 
-def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5de20cfa3035/yzl/tele9/tele9_part',  pattern='**/*.mat', outpath ="dataset_signal_10000_yzl_mini.h5"):
+def signal_regulation(cut_origin_signal):
+    return cut_origin_signal / np.max(np.abs(cut_origin_signal)) / 2 + 0.5
+
+
+def signal_regulation_old(cut_origin_signal):
+    return cut_origin_signal / np.max(np.abs(cut_origin_signal))
+
+
+def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5de20cfa3035/yzl/tele9/tele9_part',
+                             pattern='**/*.mat', outpath="dataset_signal_10000_yzl_mini.h5"):
     '''
     yzl目录---201601---xxxFc225xx.mat
            |        |-xxxFc450xx.mat
@@ -56,23 +63,23 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
         n = 0
         for file in files:
 
-            str_idx=file.find('Fc')
-            fc = int(file[str_idx+2:str_idx+5])
+            str_idx = file.find('Fc')
+            fc = int(file[str_idx + 2:str_idx + 5])
 
-            if fc>400:
+            if fc > 400:
                 continue
             # 计时
             timer = time.time()
             # 读取
-            sig = h5py.File(file,'r')['sig_valid'][:]
+            sig = h5py.File(file, 'r')['sig_valid'][:]
             length = 2000 * 10000
             samples = np.zeros([length, 2], np.int16)
             for i in range(length):
-                samples[i,0] = int(sig[i,0][0])
-                samples[i,1] = int(sig[i,0][1])
+                samples[i, 0] = int(sig[i, 0][0])
+                samples[i, 1] = int(sig[i, 0][1])
 
-            samples = samples.reshape([-1,10000,2])
-            print(samples.shape,samples.dtype)
+            samples = samples.reshape([-1, 10000, 2])
+            print(samples.shape, samples.dtype)
             # append_data_to_h5(h5f, doc, 'label_names')
             append_data_to_h5(h5f, np.stack(samples), 'signals')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
@@ -89,18 +96,21 @@ def convert_dataset_from_yzl(directory='/media/ubuntu/90679409-852b-4084-81e3-5d
 
     h5f.close()
 
+
 def myfft1_norm(stft):
-    stft[:, :, 0] =    stft[:, :, 0]/2 + 0.5
-    stft[:, :, 1] = stft[:, :, 1]/2 + 0.5
-    stft[:,:,2] =  (stft[:,:,2]+10)/10
-    stft[:,:,3] = stft[:,:,3] /2/np.pi + 0.5
+    stft[:, :, 0] = stft[:, :, 0] / 2 + 0.5
+    stft[:, :, 1] = stft[:, :, 1] / 2 + 0.5
+    stft[:, :, 2] = (stft[:, :, 2] + 10) / 10
+    stft[:, :, 3] = stft[:, :, 3] / 2 / np.pi + 0.5
     return stft
+
 
 def signal_normalization(cut_origin_signal):
     power = np.mean(np.square(cut_origin_signal)) * 2
-    return cut_origin_signal/np.sqrt(power)
+    return cut_origin_signal / np.sqrt(power)
 
-def energy_detect(origin_signal , window_size = 100 ):
+
+def energy_detect(origin_signal, window_size=100):
     analyze = origin_signal[:, 0] + np.asarray(1j, np.complex64) * origin_signal[:, 1]
     analyze = analyze - np.mean(analyze)
     print(np.mean(analyze))
@@ -111,8 +121,9 @@ def energy_detect(origin_signal , window_size = 100 ):
         head = i * window_size
         tail = i * window_size + window_size
         # 能量块的能量定义为， 能量块内信号幅度平方和的开方根，若gate 为1000 ，则对应平均幅度为sqrt(gate**2 /100) = gate /10 = 100
-        energy[i] = np.linalg.norm(analyze[head:tail])/np.sqrt(window_size)
-    return  energy
+        energy[i] = np.linalg.norm(analyze[head:tail]) / np.sqrt(window_size)
+    return energy
+
 
 def energy_detect_N_cut(origin_signal, window_size=100, gate=1e3, num_win_per_sample=30):
     '''
@@ -153,7 +164,8 @@ def energy_detect_N_cut(origin_signal, window_size=100, gate=1e3, num_win_per_sa
     return samples
 
 
-def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win_per_sample=30, drop_abnormal_mean= False):
+def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win_per_sample=30,
+                               drop_abnormal_mean=False):
     '''
     能量检测，时域切割
     :param origin_signal: numpy ndarray, shape = [Num, 2]，原始时域信号, I、Q两路
@@ -172,10 +184,10 @@ def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win
         head = i * window_size
         tail = i * window_size + window_size
         # 能量块的能量定义为， 能量块内信号幅度平方和的开方根，若gate 为1000 ，则对应平均幅度为sqrt(gate**2 /100) = gate /10 = 100
-        energy[i] = np.linalg.norm(analyze[head:tail])/np.sqrt(window_size)
+        energy[i] = np.linalg.norm(analyze[head:tail]) / np.sqrt(window_size)
         mean[i] = np.mean(origin_signal[head:tail, 0])
 
-    satisfy_bool_indices = np.logical_and(energy > gate , mean < 0.5 * gate)
+    satisfy_bool_indices = np.logical_and(energy > gate, mean < 0.5 * gate)
     samples = []
     i = 0
     # 遍历所有能量块
@@ -193,12 +205,13 @@ def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win
             i += num_win_per_sample
     return samples
 
+
 def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
     h5f = h5py.File(outpath, 'w')
     docs = os.listdir(directory)
     features = []
     label = 0
-    for  doc in docs:
+    for doc in docs:
 
         filepath = directory + '/' + doc
         files = sorted(glob(filepath + '/' + pattern, recursive=True))
@@ -210,8 +223,8 @@ def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
                 break
             # 计时
             timer = time.time()
-            str_idx=file.find('Fc')
-            fc = int(file[str_idx+2:str_idx+5])
+            str_idx = file.find('Fc')
+            fc = int(file[str_idx + 2:str_idx + 5])
             print(file)
             print(fc)
             sig = read_dat(file)
@@ -231,24 +244,24 @@ def make_dataset_fc(directory, pattern='**/*.dat', outpath='dataset_fc.h5'):
                     append_data_to_h5(h5f, np.ones(len(features), dtype=np.int32) * fc, 'fc')
                     features.clear()
 
-
-
             print(file, ' | num samples :', num_samples_a_file)
             num_samples_a_class += num_samples_a_file
             n += 1
             print(file, ' | times :', time.time() - timer, ' s')
 
-        if len(files) > 0 :
+        if len(files) > 0:
             label += 1
         print(label, ' name:', doc, ' samples:', num_samples_a_class)
 
     h5f.close()
 
-def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean= False, outpath='dataset_signal_10000_fc.h5'):
+
+def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean=False,
+                           outpath='dataset_signal_10000_fc.h5'):
     h5f = h5py.File(outpath, 'w')
     docs = os.listdir(directory)
     label = 0
-    for  doc in docs:
+    for doc in docs:
 
         filepath = directory + '/' + doc
         files = sorted(glob(filepath + '/' + pattern, recursive=True))
@@ -256,44 +269,45 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean= Fa
         num_samples_a_class = 0
         n = 0
         for file in files:
-            if n >= 10:
-                break
+            # if n >= 10:
+            #     break
             # 计时
             timer = time.time()
-            str_idx=file.find('Fc')
-            fc = int(file[str_idx+2:str_idx+5])
-            print(file)
-            print(fc)
+            str_idx = file.find('Fc')
+            fc = int(file[str_idx + 2:str_idx + 5])
             sig = read_dat(file)
+            avg = np.asarray(np.mean(sig, axis=0, keepdims=True), np.int16)
             # 30 *108 = 3240样本长度，
             samples = energy_detect_N_cut_origin(sig, 500, 300, 10, drop_abnormal_mean)[:2000]
+            samples = [sample - avg for sample in samples]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
-           # append_data_to_h5(h5f, np.stack(features), 'features')
+            # append_data_to_h5(h5f, np.stack(features), 'features')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int32) * fc, 'fc')
             # 统计代码
             num_samples_a_file = len(samples)
-            print(file, ' | num samples :', num_samples_a_file)
+            print(file, ' | fc :', fc, ' | num samples :', num_samples_a_file, ' | times :', time.time() - timer, ' s')
             num_samples_a_class += num_samples_a_file
             n += 1
-            print(file, ' | times :', time.time() - timer, ' s')
 
-        if len(files) > 0 :
+        if len(files) > 0:
             label += 1
         print(label, ' name:', doc, ' samples:', num_samples_a_class)
 
     h5f.close()
 
+
 def make_exp_set(outpath='dataset_test.h5'):
     h5f = h5py.File(outpath, 'w')
-    a=0
-    for  label in range(9):
-        samples = np.arange(a,a+1000)
-        a=a+1000
+    a = 0
+    for label in range(9):
+        samples = np.arange(a, a + 1000)
+        a = a + 1000
         append_data_to_h5(h5f, np.stack(samples), 'signals')
-       # append_data_to_h5(h5f, np.stack(features), 'features')
+        # append_data_to_h5(h5f, np.stack(features), 'features')
         append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
     h5f.close()
+
 
 def make_dataset_cut_origin_signal(directory, pattern='**/*.dat', outpath='LTE_origin_3240_dataset_5c_10s_1202.h5'):
     '''
@@ -337,9 +351,10 @@ def make_dataset_cut_origin_signal(directory, pattern='**/*.dat', outpath='LTE_o
 
     h5f.close()
 
+
 def get_h5_condition_idx(h5filepath, condition_keys: list = ['labels', 'fc'],
-                      include_conditions: list = [(0, 225), (1, 225), (2, 380)],
-                      exclude_conditions: list = [(1, 225)], outfile: str = None, shuffle=False, seg_ratio=None):
+                         include_conditions: list = [(0, 225), (1, 225), (2, 380)],
+                         exclude_conditions: list = [(1, 225)], outfile: str = None, shuffle=False, seg_ratio=None):
     if condition_keys is None or condition_keys == []:
         return []
     # for i in zip(*[[1,2],[3,4]]):
@@ -347,7 +362,7 @@ def get_h5_condition_idx(h5filepath, condition_keys: list = ['labels', 'fc'],
     # out:
     # (1, 3)
     # (2, 4)
-    h5f = h5py.File(h5filepath,'r')
+    h5f = h5py.File(h5filepath, 'r')
     length = h5f[condition_keys[0]].shape[0]
     included = np.ones(length, dtype=np.bool)
     # 如果没有指定include条件（白名单），默认整个数据集
@@ -370,16 +385,17 @@ def get_h5_condition_idx(h5filepath, condition_keys: list = ['labels', 'fc'],
         if outfile is not None:
             np.savetxt('train_' + outfile, idx[0], fmt='%d', delimiter='\n',
                        header="condition key: %s, include: %s, exclude: %s" % (
-                       condition_keys, include_conditions, exclude_conditions))
+                           condition_keys, include_conditions, exclude_conditions))
             np.savetxt('test_' + outfile, idx[1], fmt='%d', delimiter='\n',
                        header="condition key: %s, include: %s, exclude: %s" % (
-                       condition_keys, include_conditions, exclude_conditions))
+                           condition_keys, include_conditions, exclude_conditions))
     else:
         if outfile is not None:
             np.savetxt(outfile, idx, fmt='%d', delimiter='\n',
                        header="condition key: %s, include: %s, exclude: %s" % (
-                       condition_keys, include_conditions, exclude_conditions))
+                           condition_keys, include_conditions, exclude_conditions))
     return idx
+
 
 def make_dataset_stft(directory, pattern='**/*.dat', outpath='LTE_dataset_5c_1202.h5'):
     '''
@@ -430,6 +446,7 @@ def make_dataset_stft(directory, pattern='**/*.dat', outpath='LTE_dataset_5c_120
 
     h5f.close()
 
+
 def make_dataset_stft2(directory, pattern='**/*.dat', outpath='LTE_dataset_5c_1202.h5'):
     '''
     生成全信号STFT预处理的h5
@@ -479,6 +496,7 @@ def make_dataset_stft2(directory, pattern='**/*.dat', outpath='LTE_dataset_5c_12
 
     h5f.close()
 
+
 def resize_dataset(inputpath='LTE_dataset_5c_1202.h5', outpath='LTE_dataset_5c_1202.h5'):
     '''
     生成全信号STFT预处理的h5
@@ -494,13 +512,14 @@ def resize_dataset(inputpath='LTE_dataset_5c_1202.h5', outpath='LTE_dataset_5c_1
         else:
             data_iter = input[key]
             batch_size = 100
-            for s in range(0,len(data_iter),batch_size):
-                e = s+batch_size
-                #bottle_resized = resize(bottle, (140, 54))
-                data = [resize(myfft1_norm(x),(64,64,4)) for x in data_iter[s:e]]
+            for s in range(0, len(data_iter), batch_size):
+                e = s + batch_size
+                # bottle_resized = resize(bottle, (140, 54))
+                data = [resize(myfft1_norm(x), (64, 64, 4)) for x in data_iter[s:e]]
 
                 append_data_to_h5(h5f, input[key][:], key)
     h5f.close()
+
 
 def energy_detect_N_cut_return_dict(origin_signal, window_size=100, gate=1e3, num_win_per_sample=30):
     '''
@@ -542,25 +561,26 @@ def energy_detect_N_cut_return_dict(origin_signal, window_size=100, gate=1e3, nu
     return {'samples': samples, 'position': pos, 'energy': mean_energy}
 
 
-def myfft2(signal, nperseg=64, nfft=128, noverlap=44,_resize = True):
+def myfft2(signal, nperseg=64, nfft=128, noverlap=44, _resize=True):
     _, _, z = Sig.stft(signal, nperseg=nperseg, nfft=nfft, noverlap=noverlap, return_onesided=False)
-    z = np.fft.fftshift(z, 0)[:,:nfft]
+    z = np.fft.fftshift(z, 0)[:, :nfft]
     z = z / np.max(abs(z))
     feature = np.zeros((z.shape[0], z.shape[1], 4), np.float32)
-    feature[:, :, 0] = z.real/2+0.5
-    feature[:, :, 1] = z.imag/2+0.5
-    feature[:, :, 2] = np.log10(abs(z)+1e-8)
-    feature[:, :, 2] = (feature[:, :, 2]-feature[:,:,2].min())/(-feature[:,:,2].min())
-    feature[:, :, 3] = np.angle(z)/2/np.pi + 0.5
+    feature[:, :, 0] = z.real / 2 + 0.5
+    feature[:, :, 1] = z.imag / 2 + 0.5
+    feature[:, :, 2] = np.log10(abs(z) + 1e-8)
+    feature[:, :, 2] = (feature[:, :, 2] - feature[:, :, 2].min()) / (-feature[:, :, 2].min())
+    feature[:, :, 3] = np.angle(z) / 2 / np.pi + 0.5
     if _resize:
-        out = resize(feature,(64,64,4),anti_aliasing=False)
+        out = resize(feature, (64, 64, 4), anti_aliasing=False)
     else:
         out = feature
     return out
 
-def myfft1(signal, nperseg=64, nfft=256, noverlap=52,return_onesided=False):
+
+def myfft1(signal, nperseg=64, nfft=256, noverlap=52, return_onesided=False):
     _, _, z = Sig.stft(signal, nperseg=nperseg, nfft=nfft, noverlap=noverlap, return_onesided=return_onesided)
-    z = np.fft.fftshift(z, 0)[:,:nfft]
+    z = np.fft.fftshift(z, 0)[:, :nfft]
     z = z / np.max(abs(z))
     feature = np.zeros((z.shape[0], z.shape[1], 4), np.float32)
     feature[:, :, 0] = z.real
@@ -568,6 +588,7 @@ def myfft1(signal, nperseg=64, nfft=256, noverlap=52,return_onesided=False):
     feature[:, :, 2] = np.log10(abs(z))
     feature[:, :, 3] = np.angle(z)
     return feature
+
 
 def stft_phase(signal, nperseg=64, nfft=256, noverlap=52):
     _, _, z = Sig.stft(signal, nperseg=64, nfft=256, noverlap=52, return_onesided=False)
@@ -670,6 +691,7 @@ def get_train_valid_indices(number_samples, train_percent=0.6, random_seed=666):
     valid_indices = indices[num_train:]
     return train_indices, valid_indices
 
+
 # DATA9_ROOT = '/media/ubuntu/Seagate Expansion Drive/data 9/电台数据'
 DATA9_ROOT = '/media/ubuntu/9d99a77e-02ce-4e2b-a8a1-243cd4bdef7d/workplace/lwj/电台数据'
 # PATH_DICT = {'DATA9_ROOT':DATA9_ROOT}
@@ -685,4 +707,3 @@ if __name__ == '__main__':
     # make_dataset_fc('../../dataset/dat/s2')
     # make_dataset_fc(DATA9_ROOT)
     make_dataset_signal_fc(DATA9_ROOT, drop_abnormal_mean=True, outpath="dataset_signal_5000_new.h5")
-
