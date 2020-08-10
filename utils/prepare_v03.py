@@ -179,17 +179,23 @@ def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win
 
     energy_len = int(np.floor(len(analyze) / window_size))
     energy = np.zeros(energy_len)
-    mean = np.zeros(energy_len)
+    # mean1 = np.zeros(energy_len)
+    # mean2 = np.zeros(energy_len)
+    cross_zero = np.zeros(energy_len)
     for i in range(energy_len):
         head = i * window_size
         tail = i * window_size + window_size
         # 能量块的能量定义为， 能量块内信号幅度平方和的开方根，若gate 为1000 ，则对应平均幅度为sqrt(gate**2 /100) = gate /10 = 100
         energy[i] = np.linalg.norm(analyze[head:tail]) / np.sqrt(window_size)
-        mean[i] = np.mean(origin_signal[head:tail, 0])
+        # mean1[i] = np.mean(origin_signal[head:tail, 0])
+        # mean2[i] = np.mean(origin_signal[head:tail, 1])
+        cross_zero[i] = int(np.max(origin_signal[head:tail, 0])) - int(np.min(origin_signal[head:tail, 0]))
 
     satisfy_bool_indices = energy > gate
     if drop_abnormal_mean:
-        satisfy_bool_indices = np.logical_and(satisfy_bool_indices, abs(mean) < 2 * gate)
+        satisfy_bool_indices = np.logical_and(satisfy_bool_indices, abs(cross_zero) > 8000)
+        # satisfy_bool_indices = np.logical_and(satisfy_bool_indices, abs(mean1) < 2*gate)
+        # satisfy_bool_indices = np.logical_and(satisfy_bool_indices, abs(mean2) < 2*gate)
     samples = []
     i = 0
     # 遍历所有能量块
@@ -280,8 +286,7 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean=Fal
             sig = read_dat(file)
             avg = np.asarray(np.mean(sig, axis=0, keepdims=True), np.int16)
             # 30 *108 = 3240样本长度，
-            samples = energy_detect_N_cut_origin(sig, 1000, 500, 5, drop_abnormal_mean)[:2000]
-            samples = [sample - avg for sample in samples]
+            samples = energy_detect_N_cut_origin(sig - avg, 1000, 500, 5, drop_abnormal_mean)[:2000]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
             # append_data_to_h5(h5f, np.stack(features), 'features')
             append_data_to_h5(h5f, np.ones(len(samples), dtype=np.int8) * label, 'labels')
@@ -696,7 +701,7 @@ def get_train_valid_indices(number_samples, train_percent=0.6, random_seed=666):
 
 # DATA9_ROOT = '/media/ubuntu/Seagate Expansion Drive/data 9/电台数据'
 DATA9_ROOT = '/media/ubuntu/9d99a77e-02ce-4e2b-a8a1-243cd4bdef7d/workplace/lwj/电台数据'
-# DATA9_ROOT = r'C:/temp'
+DATA9_ROOT = r'C:/temp'
 # PATH_DICT = {'DATA9_ROOT':DATA9_ROOT}
 # for file in os.listdir(DATA9_ROOT):
 #     path = os.path.abspath(os.path.join(DATA9_ROOT,file))
