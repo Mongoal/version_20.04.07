@@ -187,7 +187,9 @@ def energy_detect_N_cut_origin(origin_signal, window_size=100, gate=1e2, num_win
         energy[i] = np.linalg.norm(analyze[head:tail]) / np.sqrt(window_size)
         mean[i] = np.mean(origin_signal[head:tail, 0])
 
-    satisfy_bool_indices = np.logical_and(energy > gate, mean < 0.5 * gate)
+    satisfy_bool_indices = energy > gate
+    if drop_abnormal_mean:
+        satisfy_bool_indices = np.logical_and(satisfy_bool_indices, abs(mean) < 2 * gate)
     samples = []
     i = 0
     # 遍历所有能量块
@@ -278,7 +280,7 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean=Fal
             sig = read_dat(file)
             avg = np.asarray(np.mean(sig, axis=0, keepdims=True), np.int16)
             # 30 *108 = 3240样本长度，
-            samples = energy_detect_N_cut_origin(sig, 500, 300, 10, drop_abnormal_mean)[:2000]
+            samples = energy_detect_N_cut_origin(sig, 1000, 300, 5, drop_abnormal_mean)[:2000]
             samples = [sample - avg for sample in samples]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
             # append_data_to_h5(h5f, np.stack(features), 'features')
@@ -694,6 +696,7 @@ def get_train_valid_indices(number_samples, train_percent=0.6, random_seed=666):
 
 # DATA9_ROOT = '/media/ubuntu/Seagate Expansion Drive/data 9/电台数据'
 DATA9_ROOT = '/media/ubuntu/9d99a77e-02ce-4e2b-a8a1-243cd4bdef7d/workplace/lwj/电台数据'
+# DATA9_ROOT = r'C:/temp'
 # PATH_DICT = {'DATA9_ROOT':DATA9_ROOT}
 # for file in os.listdir(DATA9_ROOT):
 #     path = os.path.abspath(os.path.join(DATA9_ROOT,file))
