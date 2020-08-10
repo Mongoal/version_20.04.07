@@ -280,7 +280,7 @@ def make_dataset_signal_fc(directory, pattern='**/*.dat', drop_abnormal_mean=Fal
             sig = read_dat(file)
             avg = np.asarray(np.mean(sig, axis=0, keepdims=True), np.int16)
             # 30 *108 = 3240样本长度，
-            samples = energy_detect_N_cut_origin(sig, 1000, 300, 5, drop_abnormal_mean)[:2000]
+            samples = energy_detect_N_cut_origin(sig, 1000, 500, 5, drop_abnormal_mean)[:2000]
             samples = [sample - avg for sample in samples]
             append_data_to_h5(h5f, np.stack(samples), 'signals')
             # append_data_to_h5(h5f, np.stack(features), 'features')
