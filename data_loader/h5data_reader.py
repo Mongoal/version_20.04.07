@@ -37,6 +37,8 @@ class H5DataReader(object):
         self.length = self._labels.shape[0]
         self.seed = seed
         self.current_id = 0
+        self.current_train_id = 0
+        self.current_test_id = 0
         np.random.seed(self.seed)
         self.set_idx(train_set_ratio=train_set_ratio, seg_set_method=seg_set_method, txt=txt_path)
 
@@ -123,6 +125,8 @@ class H5DataReader(object):
         np.random.seed(self.seed)
         self.shuffle_indices = np.random.permutation(self.length)
         self.current_id = 0
+        self.current_train_id = 0
+        self.current_test_id = 0
 
     def get_train_batch(self, batch_size):
         '''
@@ -130,14 +134,14 @@ class H5DataReader(object):
         :param batch_size: int
         :return: data_list, labels_list
         '''
-        indices = self.train_indices[self.current_id:self.current_id + batch_size]
+        indices = self.train_indices[self.current_train_id:self.current_train_id + batch_size]
         data_list = [self._data[idx] for idx in indices]
         labels_list = [self._labels[idx] for idx in indices]
-        if (self.current_id + batch_size >= len(self.train_indices)):
-            self.current_id = 0
+        if (self.current_train_id + batch_size >= len(self.train_indices)):
+            self.current_train_id = 0
             self.train_indices = np.random.permutation(self.train_indices)
         else:
-            self.current_id += batch_size
+            self.current_train_id += batch_size
         return data_list, labels_list
 
     def get_test_batch(self, batch_size):
@@ -146,13 +150,13 @@ class H5DataReader(object):
         :param batch_size: int
         :return: data_list, labels_list
         '''
-        indices = self.test_indices[self.current_id:self.current_id + batch_size]
+        indices = self.test_indices[self.current_test_id:self.current_test_id + batch_size]
         data_list = [self._data[idx] for idx in indices]
         labels_list = [self._labels[idx] for idx in indices]
-        if (self.current_id + batch_size >= len(self.test_indices)):
-            self.current_id = 0
+        if (self.current_test_id + batch_size >= len(self.test_indices)):
+            self.current_test_id = 0
         else:
-            self.current_id += batch_size
+            self.current_test_id += batch_size
         return data_list, labels_list
 
     def get_shuffle_data(self, batch_size):
